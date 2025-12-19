@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func init() {
@@ -28,10 +29,16 @@ func main() {
 
 	checkFileExist(input, airportLookup)
 
-	if !validCSV(reader){
+	fileOutput, err := openFiles(airportLookup)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "Airport lookup not found")
 		os.Exit(1)
 	}
 
+	if !validCSV(fileOutput) {
+		fmt.Fprint(os.Stderr, "Airport lookup malformed")
+		os.Exit(1)
+	}
 }
 
 func checkFileExist(input string, airportLookup string) {
@@ -72,27 +79,35 @@ var expectedHeader = []string{
 
 // csv validation
 func validCSV(reader [][]string) bool {
-header := reader[0]
-	for _, row := range reader {
-		
-		if len(header) != 6 {
-			fmt.Fprintln(os.Stderr, "Airport lookup malformed")
-			return false
-		} 	
-		if row == "" {
-			fmt.Fprintln(os.Stderr, "Airport lookup malformed")
+	//header validation
+	header := reader[0]
+	if len(header) != 6 {
+
+		return false
+	}
+	for i, v := range header {
+		if v != expectedHeader[i] {
+
 			return false
 		}
+
 	}
 
-	for i = 0: i < 5; i++ {
-		if header[i] != expectedHeader[i] {
-			fmt.Fprintln(os.Stderr, "Airport lookup malformed")
+	//row validation
+	for i := 1; i < len(reader); i++ {
+		row := reader[i]
+		if len(row) != 6 {
+
 			return false
-	}	
-	}
-		
-		return true
-	}
-	
+		}
+		for _, column := range row {
+			if len(strings.TrimSpace(column)) == 0 {
 
+				return false
+			}
+
+		}
+
+	}
+	return true
+}
