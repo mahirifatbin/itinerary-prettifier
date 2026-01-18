@@ -48,6 +48,9 @@ func main() {
 		fmt.Fprint(os.Stderr, "Input not found")
 		os.Exit(1)
 	}
+	// Step 7: Transforming IATA & ICAO codes to Airport Names
+
+	buildLookupMaps(fileOutput)
 
 	//trim or clean kora input data store kora
 	//STEP 6 : input text clean kora
@@ -185,5 +188,59 @@ func inputTextRead(path string) ([]string, error) {
 	}
 
 	return lines, nil
+
+}
+
+// Step 7: Transforming IATA & ICAO codes to Airport Names
+func buildLookupMaps(data [][]string) (iataMap map[string]string, icaoMap map[string]string, cityMap map[string]string) {
+
+	iataMap = make(map[string]string)
+	icaoMap = make(map[string]string)
+	cityMap = make(map[string]string)
+
+	for _, row := range data[1:] { //[1:] header skip korar jonno
+		name := row[0]
+		icao := row[3]
+		iata := row[4]
+		city := row[2]
+
+		iataMap[iata] = name //iata code diye khujle airportname paoa jabe
+		icaoMap[icao] = name //	icao code diye khujle airportname paoa jabe
+		cityMap[iata] = city //city name diye khujle airportname paoa jabe
+		//ex bhalo er 3 ta english ache good,better,best. jeta search dibe ans ashbe bhalo.
+	}
+	return iataMap, icaoMap, cityMap
+
+}
+
+var pattern = `(#|\##|\*#)([A-Z]{3,4})` // golang er google docs a
+
+func transformCodeToName(inputText []string, iataMap map[string]string, icaoMap map[string]string, cityMap map[string]string) []string {
+
+	re := regexp.MustCompile(pattern)
+	var outputLines []string
+	for _, line := range inputText {
+		lines := re.FindAllStringSubmatch(line, -1) //-1 means jotogulo match hoy shob dao. eita slice of slice return korbe. single string na. tai r ekta loop chalaite hobe
+
+		for _, match := range lines {
+			var result string
+			fullMatch := match[0] //example: ##LAX
+			prefix := match[1]    // ##
+			code := match[2]      // LAX
+
+			if prefix == "#" {
+				result = iataMap[code]
+			} else if prefix == "##" {
+				result = icaoMap[code]
+			} else if prefix == "*#" {
+				result = cityMap[code]
+			}
+			if result != "" {
+				line = strings.ReplaceAll(line, fullMatch, result) // line theke jeta match korse sheta replace kore dibe result diye
+			}
+		}
+		outputLines = append(outputLines, line)
+	}
+	return outputLines
 
 }
