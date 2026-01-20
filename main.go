@@ -26,7 +26,7 @@ func main() {
 	}
 
 	input := flag.Arg(0)
-	//output := flag.Arg(1)//
+	output := flag.Arg(1)
 	airportLookup := flag.Arg(2)
 
 	checkFileExist(input, airportLookup)
@@ -50,7 +50,7 @@ func main() {
 	}
 	// Step 7: Transforming IATA & ICAO codes to Airport Names
 
-	buildLookupMaps(fileOutput)
+	iata_return, icao_return, city_return := buildLookupMaps(fileOutput)
 
 	//trim or clean kora input data store kora
 	//STEP 6 : input text clean kora
@@ -91,6 +91,22 @@ func main() {
 		}
 	}
 	//SETEP 6 ENGIND
+
+	//Step 7: Transforming IATA & ICAO codes to Airport Names
+	trasnferResult := transformCodeToName(trimmedLines, iata_return, icao_return, city_return)
+	//output file writing
+	fileOut, err := os.Create(output)
+	if err != nil {
+		fmt.Fprint(os.Stderr, "Cannot create output file\n")
+		os.Exit(1)
+	}
+	defer fileOut.Close()
+	writingResult := bufio.NewWriter(fileOut)
+	for _, outputResultWriting := range trasnferResult {
+
+		writingResult.WriteString(outputResultWriting + "\n") //WriteString Ram a joma kore rakhe
+	}
+	writingResult.Flush() // RAM a joma kora data disk e store kore
 }
 
 func checkFileExist(input string, airportLookup string) {
