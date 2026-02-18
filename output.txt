@@ -1,3 +1,6 @@
-Flight from Los Angeles International Airport to Los Angeles International Airport
-City test Los Angeles
-Unknown code #XXX
+Flight from Hazrat Shahjalal International Airport to London Heathrow Airport
+Departure: D(2007-04-05T12:30-02:00)
+Time local: 02:45 PM
+Time 24h: 14:45
+
+Meeting: D(2020-01-02T00:00Z) at 09:15 AM / 09:15

@@ -1,3 +1,6 @@
-Flight from #LAX to ##KLAX
-City test *#LAX
-Unknown code #XXX
+Flight from #DAC to ##EGLL
+Departure: D(2007-04-05T12:30-02:00)
+Time local: T12(14:45)
+Time 24h: T24(14:45)
+
+Meeting: D(2020-01-02T00:00Z) at T12(09:15) / T24(09:15)
