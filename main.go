@@ -286,9 +286,9 @@ func dateTransform(inputTime string) string {
 
 	//time er layout ekta slice a rakha
 	timeLayout := []string{
-		"time.RFC3339",              // etar moddhe shob ache time second soho shob. but jodi second na thake tahole error dibe tai amader alada layout o dite hobe jate second na thakleo parse korte pare.
-		"2006-01-02T15:04:05Z07:00", // professional format holo boro format ta first a rakha
-		"2006-01-02T15:04Z07:00",    // without seconds
+		time.RFC3339, //2006-01-02T15:04:05Z07:00 ek e kotha// etar moddhe shob ache time second soho shob. but jodi second na thake tahole error dibe tai amader alada layout o dite hobe jate second na thakleo parse korte pare.
+		// professional format holo boro format ta first a rakha
+		"2006-01-02T15:04Z07:00", // without seconds
 
 	}
 
@@ -318,32 +318,27 @@ func dateTransform(inputTime string) string {
 		if !success {
 			continue // jodi kono layout e parse na hoy tahole continue kore next match e jabe
 		}
-
+		//golang a time er formating er jonno rules : 01: মাস (Month) 02: দিন (Day)	03: ঘণ্টা (12h format) 04: মিনিট (Minute) 05: সেকেন্ড (Second) 06: বছর (Year) 07: টাইমজোন অফসেট (Timezone Offset)
 		//offset finding and adjusting
-		offsetString := parsedTime.Format("-02:00")
-		if offsetString == "Z" || strings.HasSuffix(rawValue, "Z") {
-			offsetString = "+00:00"
-		}
+		offsetString := parsedTime.Format("-07:00") // -07:00 fixed → Go numeric offset দেখায়, কোনো "Z" নয়
 
 		var result string
 		switch tag {
 		case "D":
-			result = parsedTime.Format("01 Jan 2006")
+			result = parsedTime.Format("02 Jan 2006")
 
 		case "T12":
 			// parsedTime, err := time.Parse("15:04", rawValue) //time.parse (layout , value). input hisebe amader 15:00 ashte pare but output hisebe amader 03:00 PM dekhate hobe. tai layout e 15:04 dite hobe. karon time.parse er layout e 15:04 but output amar 12H format a dibe jokhon ami format set kore dibw tokhon.
 
-			result = parsedTime.Format("03:04 PM")
+			result = fmt.Sprintf("%s (%s)", parsedTime.Format("03:04PM"), offsetString)
 
 		case "T24":
 
-			result = parsedTime.Format("15:04")
+			result = fmt.Sprintf("%s (%s)", parsedTime.Format("15:04"), offsetString)
 		}
 		if result != "" {
 			workingStringTime = strings.Replace(workingStringTime, fullDateMatch, result, 1) //input time theke jeta match korse sheta replace kore dibe result diye. 1 means first match ta replace korbe
 		}
-		fmt.Println("Before:", inputTime)
-		fmt.Println("After:", workingStringTime)
 	}
 	return workingStringTime
 
