@@ -1,2 +1,23 @@
-T12(2024-05-10T15:30Z)
-D(2024-05-10T15:30Z)
+Flight from #JFK to ##EGLL
+
+Departure: D(2023-07-15T14:30-04:00)
+Arrival: D(2023-07-16T02:30+01:00)
+
+Takeoff time: T12(2023-07-15T14:30-04:00)
+Landing time: T24(2023-07-16T02:30+01:00)
+
+Connecting city: *#LHR
+
+Unknown airport test: #ABC #ZZZ
+
+Malformed date test: T13(2023-07-15T14:30-04:00)
+
+Zulu time test: T24(2023-07-15T18:30Z)
+
+
+
+Extra blank line test
+
+
+
+End of itinerary.

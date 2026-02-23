@@ -1,2 +1,19 @@
-03:30PM (+00:00)
-10 May 2024
+Flight from John F Kennedy International Airport to London Heathrow Airport
+
+Departure: 15 Jul 2023
+Arrival: 16 Jul 2023
+
+Takeoff time: 02:30PM (-04:00)
+Landing time: 02:30 (+01:00)
+
+Connecting city: London
+
+Unknown airport test: Albacete-Los Llanos Airport #ZZZ
+
+Malformed date test: T13(2023-07-15T14:30-04:00)
+
+Zulu time test: 18:30 (+00:00)
+
+Extra blank line test
+
+End of itinerary.
