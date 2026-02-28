@@ -1,4 +1,6 @@
-Flight from John F Kennedy International Airport to London Heathrow Airport
+Flight
+
+from John F Kennedy International Airport to London Heathrow Airport
 
 Departure: 15 Jul 2023
 Arrival: 16 Jul 2023
