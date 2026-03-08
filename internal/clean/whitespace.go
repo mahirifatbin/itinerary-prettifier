@@ -5,27 +5,31 @@ import (
 	"strings"
 )
 
-func TrimWhitespace(fileInput []string) []string {
-	var trimmedLines []string // new cleaned lines store korar jonno
+func TrimWhitespace(fileInput []string, compressHorizontalSpace bool) []string {
+	var trimmedLines []string // this will store new cleaned lines
 	lastLineEmpty := false
-	re := regexp.MustCompile(`[ \t]+`) //multiple space or tab remove korar jonno regexp.loop er baire rakhsi karon bar bar banate hobe na
 
-	//fileInput onekgulo sentencer er slice or talika r line hoilo eikhane ekta sentence (string)
+	var re *regexp.Regexp
+	if compressHorizontalSpace {
+		re = regexp.MustCompile(`[ \t]+`) //multiple space or tab will remove and replace with single space
+	}
+
+	//FileInput is the slice of string where each element is a line of the input file. So we will iterate through each line and clean it.
 	for _, line := range fileInput {
 
-		trimmed := strings.TrimSpace(line) //samne and pichoner whitespace gulo remove korbe. majher gulo nah
+		trimmed := strings.TrimSpace(line) //Forward and backward space remove
 
-		//advance method use kora lagbe emon kono ulta palta jinish khoj korar jonno-normal kaj korar jonno strings package use korai enough
 		replaceChar := trimmed
 		replaceChar = strings.ReplaceAll(replaceChar, "\r", "\n")
 		replaceChar = strings.ReplaceAll(replaceChar, "\v", "\n")
 		replaceChar = strings.ReplaceAll(replaceChar, "\f", "\n")
 
-		//regexp diye multiple space ba trim jodi thake easily remove kora jabe
-
 		for _, singleLine := range strings.Split(replaceChar, "\n") {
 
-			cleaningMultiSpace := re.ReplaceAllString(singleLine, " ")
+			cleaningMultiSpace := singleLine
+			if compressHorizontalSpace && re != nil {
+				cleaningMultiSpace = re.ReplaceAllString(cleaningMultiSpace, " ")
+			}
 			cleaningMultiSpace = strings.TrimSpace(cleaningMultiSpace)
 
 			//multiple empty line check
@@ -38,7 +42,7 @@ func TrimWhitespace(fileInput []string) []string {
 				lastLineEmpty = false
 			}
 			//empty space check
-			trimmedLines = append(trimmedLines, cleaningMultiSpace) // slice er jonno append use korte hoy. String er jonno noy.
+			trimmedLines = append(trimmedLines, cleaningMultiSpace) // Append is using for adding new element in slice. Here we are adding cleaned line in trimmedLines slice.
 		}
 
 	}

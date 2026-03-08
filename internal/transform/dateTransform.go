@@ -16,12 +16,10 @@ var (
 func DateTransform(inputTime string) string {
 	catchTime := timePattern.FindAllStringSubmatch(inputTime, -1)
 	workingStringTime := inputTime
-	//RFC3339 format: 2006-01-02T15:04:05Z07:00 eita diye just emon format e support korbe but amder input onujai kokhono second nao thakte pare tai amader golan k format bujaiya dite hobe j ki ki format expected from input.
 
-	//time er layout ekta slice a rakha
+	//Slice in a time layout.
 	timeLayout := []string{
-		time.RFC3339, //2006-01-02T15:04:05Z07:00 ek e kotha// etar moddhe shob ache time second soho shob. but jodi second na thake tahole error dibe tai amader alada layout o dite hobe jate second na thakleo parse korte pare.
-		// professional format holo boro format ta first a rakha
+		time.RFC3339,             //2006-01-02T15:04:05Z07:00 (ISO 8601 format with seconds)
 		"2006-01-02T15:04Z07:00", // without seconds
 
 	}
@@ -34,7 +32,7 @@ func DateTransform(inputTime string) string {
 
 		if !offsetTimePattern.MatchString(rawValue) {
 			fmt.Fprintf(os.Stderr, "[WARN] Skipping invalid offset format: %s\n", rawValue)
-			continue // offset pattern match na korle continue kore next match e jabe. karon amader expected input e date time er sheshe always offset thakbe. jodi na thake ba bhul thake tahole sheta valid input hobe na.
+			continue
 		}
 
 		var parsedTime time.Time
@@ -43,20 +41,21 @@ func DateTransform(inputTime string) string {
 
 		//for parsing
 		for _, layout := range timeLayout {
-			parsedTime, err = time.Parse(layout, rawValue) //raw value layout onujai parse korbe.
+			parsedTime, err = time.Parse(layout, rawValue) //raw value will parsed based on layout.
 			if err == nil {
 				success = true
-				break // parsing successful hole loop theke ber hoye jabe
+				break // parsing successful then get out of the loop
 			}
 		}
-		//ei jaygata ektu tricky. success starting a var false and jodi err nil hoy tahole eita true and break kore loop theke ber hoye jabe r jodi !nil hoy tahole !success true hoye jabe and abar continue kore next match a khujte jabe. Its called Gaurd Clause.
+
 		if !success {
 			fmt.Fprintf(os.Stderr, "[WARN] Skipping invalid date/time input: %s\n", fullDateMatch)
-			continue // jodi kono layout e parse na hoy tahole continue kore next match e jabe
+			continue // if no parse in any layout then skip this match and continue with next match.
+
 		}
-		//golang a time er formating er jonno rules : 01: মাস (Month) 02: দিন (Day)	03: ঘণ্টা (12h format) 04: মিনিট (Minute) 05: সেকেন্ড (Second) 06: বছর (Year) 07: টাইমজোন অফসেট (Timezone Offset)
+
 		//offset finding and adjusting
-		offsetString := parsedTime.Format("-07:00") // -07:00 fixed → Go numeric offset দেখায়, কোনো "Z" নয়
+		offsetString := parsedTime.Format("-07:00")
 
 		var result string
 		switch tag {
@@ -64,7 +63,6 @@ func DateTransform(inputTime string) string {
 			result = parsedTime.Format("02 Jan 2006")
 
 		case "T12":
-			// parsedTime, err := time.Parse("15:04", rawValue) //time.parse (layout , value). input hisebe amader 15:00 ashte pare but output hisebe amader 03:00 PM dekhate hobe. tai layout e 15:04 dite hobe. karon time.parse er layout e 15:04 but output amar 12H format a dibe jokhon ami format set kore dibw tokhon.
 
 			result = fmt.Sprintf("%s (%s)", parsedTime.Format("03:04PM"), offsetString)
 
@@ -73,7 +71,7 @@ func DateTransform(inputTime string) string {
 			result = fmt.Sprintf("%s (%s)", parsedTime.Format("15:04"), offsetString)
 		}
 		if result != "" {
-			workingStringTime = strings.Replace(workingStringTime, fullDateMatch, result, 1) //input time theke jeta match korse sheta replace kore dibe result diye. 1 means first match ta replace korbe
+			workingStringTime = strings.Replace(workingStringTime, fullDateMatch, result, 1) //1 means first match will be replaced
 		}
 	}
 	return workingStringTime

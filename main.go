@@ -17,9 +17,23 @@ func init() {
 go run . ./input.txt ./output.txt ./airport-lookup.csv`)
 	}
 }
+func init() {
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, `itinerary usage:
+go run . ./input.txt ./output.txt ./airport-lookup.csv`)
+	}
+}
+
 func main() {
 
+	flagVersion := flag.Bool("v", false, "Print version information and exit")                           // version flag
+	compressFlag := flag.Bool("c", false, "Compress multiple spaces and tabs into a single space space") // compress flag for horizontal space compression
+
 	flag.Parse()
+	if *flagVersion {
+		fmt.Println("itinerary version 1.0.0")
+		os.Exit(0)
+	}
 
 	if flag.NArg() != 3 {
 		flag.Usage()
@@ -31,6 +45,7 @@ func main() {
 	airportLookup := flag.Arg(2)
 
 	filehandle.CheckFileExist(input, airportLookup)
+
 	//CSV file opening and validation
 	fileOutput, err := filehandle.OpenCSVFile(airportLookup)
 	if err != nil {
@@ -39,7 +54,7 @@ func main() {
 	}
 
 	if !csvlookup.ValidCSV(fileOutput) {
-		fmt.Fprint(os.Stderr, "Airport lookup malformed")
+		fmt.Fprint(os.Stderr, "Airport lookup malformed\n")
 		os.Exit(1)
 	}
 
@@ -50,35 +65,38 @@ func main() {
 		os.Exit(1)
 	}
 
-	//STEP 6 : input text clean kora
-	trimmedLines := clean.TrimWhitespace(fileInput) //trim or clean kora input data store kora
+	//Input text cleaning and trimming
+	trimmedLines := clean.TrimWhitespace(fileInput, *compressFlag) //trim or clean kora input data store kora
 
-	// Step 7: Transforming IATA & ICAO codes to Airport Names
+	//Transforming IATA & ICAO codes to Airport Names
 	iata_return, icao_return, city_return := csvlookup.BuildLookupMaps(fileOutput)
 
-	//Step 7: Transforming IATA & ICAO codes to Airport Names
+	//Transforming IATA & ICAO codes to Airport Names
 	transferResult := transform.TransformCodeToName(trimmedLines, iata_return, icao_return, city_return)
 
-	//Step 8 : date Transform er jonno amar ekta alada function lagbe jeta transferResult theke paoa slice k range korle amra string pabw and oi string er moddhe date time pattern khujbo and dateTransform function call kore replace kore dibo.
+	//Transforming Date and Time Formats
 	var finalResult []string
 	for _, line := range transferResult {
-		finalResult = append(finalResult, transform.DateTransform(line)) //date transform er result final result e rakha
+		finalResult = append(finalResult, transform.DateTransform(line)) //date transform results in final result.
 	}
 
-	//output file writing
+	//Output file writing
 	fileOut, err := os.Create(output)
 	if err != nil {
 		fmt.Fprint(os.Stderr, "Cannot create output file\n")
 		os.Exit(1)
 	}
 	defer fileOut.Close()
+
+	//default Flight Information output heading
+	header := "✈ Flight Information\n--------------------\n\n"
+	fileOut.WriteString(header)
+
 	writingResult := bufio.NewWriter(fileOut)
 	for _, outputResultWriting := range finalResult {
 
-		writingResult.WriteString(outputResultWriting + "\n") //WriteString Ram a joma kore rakhe
+		writingResult.WriteString(outputResultWriting + "\n") //WriteString store in RAM
 	}
-	writingResult.Flush() // RAM a joma kora data disk e store kore
-
-	//important: main function a main kokhono kichu return korbe nah.
+	writingResult.Flush() // RAM data stored in Disk.
 
 }

@@ -13,7 +13,7 @@ var requiredColumnHeader = []string{
 	"coordinates",
 }
 
-var columnIndex map[string]int //header map globally store করতে হবে
+var columnIndex map[string]int //header map putting in global variable
 
 // csv validation
 func ValidCSV(reader [][]string) bool {
@@ -58,23 +58,22 @@ func ValidCSV(reader [][]string) bool {
 	return true
 }
 
-// Step 7: Transforming IATA & ICAO codes to Airport Names
+// Transforming IATA & ICAO codes to Airport Names
 func BuildLookupMaps(data [][]string) (iataMap map[string]string, icaoMap map[string]string, cityMap map[string]string) {
 
 	iataMap = make(map[string]string)
 	icaoMap = make(map[string]string)
 	cityMap = make(map[string]string)
 
-	for _, row := range data[1:] { //[1:] header skip korar jonno
+	for _, row := range data[1:] { //[1:] for header skip
 		name := row[columnIndex["name"]]
 		icao := row[columnIndex["icao_code"]]
 		iata := row[columnIndex["iata_code"]]
 		city := row[columnIndex["municipality"]]
 
-		iataMap[iata] = name //iata code diye khujle airportname paoa jabe
-		icaoMap[icao] = name //	icao code diye khujle airportname paoa jabe
-		cityMap[iata] = city //city name diye khujle airportname paoa jabe
-		//ex bhalo er 3 ta english ache good,better,best. jeta search dibe ans ashbe bhalo.
+		iataMap[iata] = name
+		icaoMap[icao] = name
+		cityMap[iata] = city
 	}
 	return iataMap, icaoMap, cityMap
 
